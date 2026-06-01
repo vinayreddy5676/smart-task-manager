@@ -28,7 +28,7 @@ const Tasks = () => {
         try {
             setLoading(true);
             const response = await getTasks();
-            setTasks(response.data);
+            setTasks(response.data.reverse());
         } catch (err) {
             setError('Failed to fetch tasks.');
         } finally {
@@ -42,19 +42,29 @@ const Tasks = () => {
 
     const handleAddTask = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        if (!title.trim() || !description.trim()) {
+            setError('Title and Description are required.');
+            return;
+        }
+
+        setError('');
         setAddLoading(true);
+
         try {
             await addTask({
-                title,
-                description,
+                title: title.trim(),
+                description: description.trim(),
                 status,
                 priority: '',
                 dueDate: dueDate ? dueDate + ':00' : null,
             });
+
             setTitle('');
             setDescription('');
             setStatus('PENDING');
             setDueDate('');
+
             fetchTasks();
         } catch (err) {
             setError('Failed to add task.');
@@ -65,6 +75,7 @@ const Tasks = () => {
 
     const handleDelete = async (id: number) => {
         if (!window.confirm('Delete this task?')) return;
+
         try {
             await deleteTask(id);
             fetchTasks();
@@ -87,6 +98,7 @@ const Tasks = () => {
             fetchTasks();
             return;
         }
+
         try {
             const response = await searchTasks(search);
             setTasks(response.data);
@@ -98,6 +110,7 @@ const Tasks = () => {
     const handlePriorityFilter = async (priority: string) => {
         setPriorityFilter(priority);
         setStatusFilter('ALL');
+
         try {
             if (priority === 'ALL') {
                 fetchTasks();
@@ -113,6 +126,7 @@ const Tasks = () => {
     const handleStatusFilter = async (status: string) => {
         setStatusFilter(status);
         setPriorityFilter('ALL');
+
         try {
             if (status === 'ALL') {
                 fetchTasks();
@@ -130,12 +144,19 @@ const Tasks = () => {
             <Navbar />
 
             <div className="max-w-7xl mx-auto px-6 py-8">
+
                 {/* Header */}
                 <div className="mb-8">
-                    <h1 className="text-white text-3xl font-bold">Task Manager</h1>
-                    <p className="text-slate-400 mt-1">Add, manage and track all your tasks</p>
+                    <h1 className="text-white text-3xl font-bold">
+                        Task Manager
+                    </h1>
+
+                    <p className="text-slate-400 mt-1">
+                        Add, manage and track all your tasks
+                    </p>
                 </div>
 
+                {/* Error */}
                 {error && (
                     <div className="bg-red-500/20 border border-red-500 text-red-400 px-4 py-3 rounded-lg mb-6">
                         {error}
@@ -144,58 +165,86 @@ const Tasks = () => {
 
                 {/* Add Task Form */}
                 <div className="bg-slate-800 rounded-xl p-6 border border-slate-700 mb-8">
+
                     <h2 className="text-white font-semibold text-lg mb-4">
                         ➕ Add New Task
+
                         <span className="text-violet-400 text-sm font-normal ml-2">
                             (AI will auto-detect priority)
                         </span>
                     </h2>
+
                     <form onSubmit={handleAddTask}>
+
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+
+                            {/* Title */}
                             <div>
-                                <label className="text-slate-300 text-sm font-medium block mb-2">Title</label>
+                                <label className="text-slate-300 text-sm font-medium block mb-2">
+                                    Title
+                                </label>
+
                                 <input
                                     type="text"
                                     value={title}
                                     onChange={(e) => setTitle(e.target.value)}
                                     placeholder="e.g. Submit Assignment"
                                     required
-                                    className="w-full bg-slate-900 border border-slate-600 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-violet-500 transition"
+                                    className="w-full bg-slate-900 text-white border border-slate-600 px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500 appearance-none"
                                 />
                             </div>
+
+                            {/* Description */}
                             <div>
-                                <label className="text-slate-300 text-sm font-medium block mb-2">Description</label>
+                                <label className="text-slate-300 text-sm font-medium block mb-2">
+                                    Description
+                                </label>
+
                                 <input
                                     type="text"
                                     value={description}
                                     onChange={(e) => setDescription(e.target.value)}
                                     placeholder="e.g. Due in 1 hour, must submit now"
                                     required
-                                    className="w-full bg-slate-900 border border-slate-600 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-violet-500 transition"
+                                    className="w-full bg-slate-900 text-white border border-slate-600 px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500 appearance-none"
                                 />
                             </div>
+
+                            {/* Status */}
                             <div>
-                                <label className="text-slate-300 text-sm font-medium block mb-2">Status</label>
+                                <label className="text-slate-300 text-sm font-medium block mb-2">
+                                    Status
+                                </label>
+
                                 <select
                                     value={status}
                                     onChange={(e) => setStatus(e.target.value)}
-                                    className="w-full bg-slate-900 border border-slate-600 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-violet-500 transition"
+                                    className="w-full bg-slate-900 text-white border border-slate-600 px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500 appearance-none"
                                 >
                                     <option value="PENDING">PENDING</option>
                                     <option value="IN_PROGRESS">IN PROGRESS</option>
                                     <option value="COMPLETED">COMPLETED</option>
                                 </select>
                             </div>
+
+                            {/* Due Date */}
                             <div>
-                                <label className="text-slate-300 text-sm font-medium block mb-2">Due Date (optional)</label>
+                                <label className="text-slate-300 text-sm font-medium block mb-2">
+                                    Due Date (optional)
+                                </label>
+
                                 <input
                                     type="datetime-local"
                                     value={dueDate}
                                     onChange={(e) => setDueDate(e.target.value)}
-                                    className="w-full bg-slate-900 border border-slate-600 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-violet-500 transition"
+                                    style={{ colorScheme: 'dark' }}
+                                    className="w-full bg-slate-900 text-white border border-slate-600 px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500 appearance-none"
                                 />
                             </div>
+
                         </div>
+
+                        {/* Submit */}
                         <button
                             type="submit"
                             disabled={addLoading}
@@ -203,58 +252,77 @@ const Tasks = () => {
                         >
                             {addLoading ? '🤖 AI is thinking...' : 'Add Task'}
                         </button>
+
                     </form>
                 </div>
 
                 {/* Filters */}
                 <div className="bg-slate-800 rounded-xl p-4 border border-slate-700 mb-6">
+
                     <div className="flex flex-wrap gap-4 items-center">
+
                         {/* Search */}
                         <div className="flex gap-2 flex-1 min-w-[200px]">
+
                             <input
                                 type="text"
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
                                 placeholder="Search tasks..."
-                                className="flex-1 bg-slate-900 border border-slate-600 text-white px-4 py-2 rounded-lg focus:outline-none focus:border-violet-500 transition"
+                                className="flex-1 bg-slate-900 text-white border border-slate-600 px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500 appearance-none"
                             />
+
                             <button
                                 onClick={handleSearch}
                                 className="bg-violet-600 hover:bg-violet-700 text-white px-4 py-2 rounded-lg transition"
                             >
                                 Search
                             </button>
+
                             <button
-                                onClick={() => { setSearch(''); fetchTasks(); }}
+                                onClick={() => {
+                                    setSearch('');
+                                    fetchTasks();
+                                }}
                                 className="bg-slate-600 hover:bg-slate-500 text-white px-4 py-2 rounded-lg transition"
                             >
                                 Reset
                             </button>
+
                         </div>
 
                         {/* Priority Filter */}
                         <div className="flex gap-2">
+
                             {['ALL', 'HIGH', 'MEDIUM', 'LOW'].map(p => (
+
                                 <button
                                     key={p}
                                     onClick={() => handlePriorityFilter(p)}
                                     className={`px-3 py-2 rounded-lg text-sm font-medium transition ${
                                         priorityFilter === p
-                                            ? p === 'HIGH' ? 'bg-red-500 text-white'
-                                            : p === 'MEDIUM' ? 'bg-amber-500 text-white'
-                                            : p === 'LOW' ? 'bg-green-500 text-white'
-                                            : 'bg-violet-600 text-white'
+                                            ? p === 'HIGH'
+                                                ? 'bg-red-500 text-white'
+                                                : p === 'MEDIUM'
+                                                ? 'bg-amber-500 text-white'
+                                                : p === 'LOW'
+                                                ? 'bg-green-500 text-white'
+                                                : 'bg-violet-600 text-white'
                                             : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
                                     }`}
                                 >
                                     {p}
                                 </button>
+
                             ))}
+
                         </div>
 
                         {/* Status Filter */}
                         <div className="flex gap-2">
+
                             {['ALL', 'PENDING', 'COMPLETED'].map(s => (
+
                                 <button
                                     key={s}
                                     onClick={() => handleStatusFilter(s)}
@@ -266,16 +334,21 @@ const Tasks = () => {
                                 >
                                     {s}
                                 </button>
+
                             ))}
+
                         </div>
+
                     </div>
                 </div>
 
                 {/* Tasks Table */}
                 <div className="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden">
+
                     <div className="p-4 border-b border-slate-700">
                         <h2 className="text-white font-semibold">
                             All Tasks
+
                             <span className="text-slate-400 text-sm font-normal ml-2">
                                 ({tasks.length} total)
                             </span>
@@ -283,14 +356,23 @@ const Tasks = () => {
                     </div>
 
                     {loading ? (
-                        <div className="text-center text-slate-400 py-20">Loading tasks...</div>
+
+                        <div className="text-center text-slate-400 py-20">
+                            Loading tasks...
+                        </div>
+
                     ) : tasks.length === 0 ? (
+
                         <div className="text-center text-slate-400 py-20">
                             No tasks found. Add your first task above!
                         </div>
+
                     ) : (
+
                         <div className="overflow-x-auto">
+
                             <table className="w-full">
+
                                 <thead className="bg-slate-900">
                                     <tr>
                                         <th className="text-left text-slate-400 text-sm px-4 py-3">ID</th>
@@ -302,46 +384,76 @@ const Tasks = () => {
                                         <th className="text-left text-slate-400 text-sm px-4 py-3">Actions</th>
                                     </tr>
                                 </thead>
+
                                 <tbody>
+
                                     {tasks.map((task, index) => (
+
                                         <tr
                                             key={task.id}
                                             className={`border-t border-slate-700 hover:bg-slate-700/50 transition ${
-                                                index % 2 === 0 ? 'bg-slate-800' : 'bg-slate-800/50'
+                                                index % 2 === 0
+                                                    ? 'bg-slate-800'
+                                                    : 'bg-slate-800/50'
                                             }`}
                                         >
-                                            <td className="text-slate-400 text-sm px-4 py-3">#{task.id}</td>
-                                            <td className={`px-4 py-3 font-medium ${task.completed ? 'line-through text-slate-500' : 'text-white'}`}>
+
+                                            <td className="text-slate-400 text-sm px-4 py-3">
+                                            #{index + 1}
+                                            </td>
+
+                                            <td className={`px-4 py-3 font-medium ${
+                                                task.completed
+                                                    ? 'line-through text-slate-500'
+                                                    : 'text-white'
+                                            }`}>
                                                 {task.title}
                                             </td>
+
                                             <td className="text-slate-400 text-sm px-4 py-3 max-w-[200px] truncate">
                                                 {task.description}
                                             </td>
+
                                             <td className="px-4 py-3">
+
                                                 <span className={`text-xs font-bold px-3 py-1 rounded-full ${
-                                                    task.priority === 'HIGH' ? 'bg-red-500/20 text-red-400' :
-                                                    task.priority === 'MEDIUM' ? 'bg-amber-500/20 text-amber-400' :
-                                                    'bg-green-500/20 text-green-400'
+                                                    task.priority === 'HIGH'
+                                                        ? 'bg-red-500/20 text-red-400'
+                                                        : task.priority === 'MEDIUM'
+                                                        ? 'bg-amber-500/20 text-amber-400'
+                                                        : 'bg-green-500/20 text-green-400'
                                                 }`}>
                                                     {task.priority}
                                                 </span>
+
                                             </td>
+
                                             <td className="px-4 py-3">
+
                                                 <span className={`text-xs px-3 py-1 rounded-full ${
-                                                    task.completed ? 'bg-violet-500/20 text-violet-400' :
-                                                    task.status === 'PENDING' ? 'bg-slate-700 text-slate-300' :
-                                                    'bg-blue-500/20 text-blue-400'
+                                                    task.completed
+                                                        ? 'bg-violet-500/20 text-violet-400'
+                                                        : task.status === 'PENDING'
+                                                        ? 'bg-slate-700 text-slate-300'
+                                                        : 'bg-blue-500/20 text-blue-400'
                                                 }`}>
-                                                    {task.completed ? 'COMPLETED' : task.status}
+                                                    {task.completed
+                                                        ? 'COMPLETED'
+                                                        : task.status}
                                                 </span>
+
                                             </td>
+
                                             <td className="text-slate-400 text-sm px-4 py-3">
                                                 {task.dueDate
                                                     ? new Date(task.dueDate).toLocaleDateString()
                                                     : '—'}
                                             </td>
+
                                             <td className="px-4 py-3">
+
                                                 <div className="flex gap-2">
+
                                                     {!task.completed && (
                                                         <button
                                                             onClick={() => handleComplete(task.id)}
@@ -350,21 +462,32 @@ const Tasks = () => {
                                                             ✅ Done
                                                         </button>
                                                     )}
+
                                                     <button
                                                         onClick={() => handleDelete(task.id)}
                                                         className="bg-red-500/20 hover:bg-red-500/40 text-red-400 px-3 py-1 rounded-lg text-xs transition"
                                                     >
                                                         🗑️ Delete
                                                     </button>
+
                                                 </div>
+
                                             </td>
+
                                         </tr>
+
                                     ))}
+
                                 </tbody>
+
                             </table>
+
                         </div>
+
                     )}
+
                 </div>
+
             </div>
         </div>
     );

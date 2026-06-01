@@ -7,3 +7,15 @@ body {
   color: white;
   font-family: 'Inter', sans-serif;
 }
+
+input,
+select,
+textarea {
+  background-color: #0f172a !important;
+  color: white !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #94a3b8;
+}

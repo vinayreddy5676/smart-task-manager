@@ -17,7 +17,7 @@ const Login = () => {
         setError('');
         try {
             const response = await login(email, password);
-            loginUser(response.data.token, email);
+            loginUser(response.data, email);
             navigate('/dashboard');
         } catch (err) {
             setError('Invalid email or password. Please try again.');
