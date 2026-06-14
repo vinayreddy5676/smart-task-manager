@@ -1,0 +1,29 @@
+services:
+  mysql:
+    image: mysql:latest
+    container_name: mysql-db
+    environment:
+      MYSQL_ROOT_PASSWORD: Vinay@5676
+      MYSQL_DATABASE: taskdb
+    ports:
+      - "3307:3306"
+
+  app:
+    image: smart-task-manager
+    container_name: smart-task-app
+    depends_on:
+      - mysql
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/taskdb
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: Vinay@5676
+
+  frontend:
+    image: smart-task-frontend
+    container_name: smart-task-frontend
+    depends_on:
+      - app
+    ports:
+      - "5173:5173"

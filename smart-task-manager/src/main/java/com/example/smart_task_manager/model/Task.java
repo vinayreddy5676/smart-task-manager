@@ -14,6 +14,14 @@ public class Task {
     @JoinColumn(name = "user_id")
     private User user;
 
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
     private String title;
     private String description;
     private String status;
@@ -30,9 +38,6 @@ public class Task {
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
-
-    public User getUser() { return user; }
-    public void setUser(User user) { this.user = user; }
 
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }

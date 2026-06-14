@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.Map;
 
@@ -15,16 +15,16 @@ public class AiTaskService {
     @Value("${gemini.api.key}")
     private String apiKey;
 
-    private final WebClient webClient;
+
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    public AiTaskService() {
-        this.webClient = WebClient.builder()
-                .baseUrl("https://generativelanguage.googleapis.com")
-                .build();
-    }
+    private final RestTemplate restTemplate = new RestTemplate();
 
-    public String suggestPriority(String title, String description) {
+    public String suggestPriority(
+            String title,
+            String description,
+            String dueDate
+    ) {
 
         // ✅ Fixed: blank check is now ABOVE the retry loop
         if (title == null || title.isBlank() || description == null || description.isBlank()) {
@@ -34,13 +34,17 @@ public class AiTaskService {
 
         String prompt =
                 "You are a task priority classifier. Classify the task below as HIGH, MEDIUM, or LOW.\n\n" +
+
                         "Rules:\n" +
-                        "- HIGH: urgent deadlines (within hours or today), submissions, exams, critical work\n" +
-                        "- MEDIUM: tasks due in a few days, moderate importance, regular work\n" +
-                        "- LOW: no deadline, optional, general, or background tasks\n\n" +
-                        "Respond with ONLY one word — HIGH, MEDIUM, or LOW. No explanation, no punctuation.\n\n" +
+                        "- HIGH: due today, urgent, exams, submissions, deadlines\n" +
+                        "- MEDIUM: due in a few days, moderate importance\n" +
+                        "- LOW: no deadline, optional tasks\n\n" +
+
+                        "Respond ONLY with HIGH, MEDIUM, or LOW.\n\n" +
+
                         "Task Title: " + title + "\n" +
-                        "Task Description: " + description;
+                        "Task Description: " + description + "\n" +
+                        "Due Date: " + dueDate;
 
         Map<String, Object> requestBody = Map.of(
                 "contents", new Object[]{
@@ -58,16 +62,13 @@ public class AiTaskService {
                     Thread.sleep(3000L * attempt);
                 }
 
-                String rawResponse = webClient.post()
-                        .uri(uriBuilder -> uriBuilder
-                                .path("/v1beta/models/gemini-2.0-flash-lite:generateContent")
-                                .queryParam("key", apiKey)
-                                .build())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .bodyValue(requestBody)
-                        .retrieve()
-                        .bodyToMono(String.class)
-                        .block();
+                String url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=" + apiKey;
+
+                String rawResponse = restTemplate.postForObject(
+                        url,
+                        requestBody,
+                        String.class
+                );
 
                 if (rawResponse == null) {
                     System.err.println("[AiTaskService] Null response from Gemini.");

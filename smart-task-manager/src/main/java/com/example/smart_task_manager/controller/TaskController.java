@@ -5,6 +5,7 @@ import com.example.smart_task_manager.model.Task;
 import com.example.smart_task_manager.service.TaskService;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.Authentication;
 
 import java.util.List;
 
@@ -20,14 +21,19 @@ public class TaskController {
     }
 
     @PostMapping
-    public Task addTask(@Valid @RequestBody TaskDTO dto) {
+    public Task addTask(
+            @Valid @RequestBody TaskDTO dto,
+            Authentication authentication
+    ) {
         Task task = new Task();
         task.setTitle(dto.getTitle());
         task.setDescription(dto.getDescription());
         task.setStatus(dto.getStatus());
         task.setPriority(dto.getPriority());
         task.setDueDate(dto.getDueDate()); // ✅ Step 2
-        return service.addTask(task);
+        String email = authentication.getName();
+
+        return service.addTask(task, email);
     }
 
     @PutMapping("/{id}")
@@ -51,9 +57,13 @@ public class TaskController {
     }
 
     @GetMapping
-    public List<Task> getTasks() {
-        return service.getTasks();
+    public List<Task> getTasks(Authentication authentication) {
+
+        String email = authentication.getName();
+
+        return service.getTasks(email);
     }
+
 
     @GetMapping("/priority/{priority}")
     public List<Task> getTasksByPriority(@PathVariable String priority) {
