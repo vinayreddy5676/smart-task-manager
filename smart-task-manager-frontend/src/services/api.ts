@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const BASE_URL = 'http://13.211.143.243:8080';
+const BASE_URL = '';
 
 const api = axios.create({
     baseURL: BASE_URL,
@@ -24,27 +24,27 @@ export const register = (name: string, email: string, password: string) =>
 
 // ✅ Task APIs
 export const getTasks = () =>
-    api.get('/tasks');
+    api.get('/api/tasks');
 
 export const addTask = (task: any) =>
-    api.post('/tasks', task);
+    api.post('/api/tasks', task);
 
 export const updateTask = (id: number, task: any) =>
-    api.put(`/tasks/${id}`, task);
+    api.put(`/api/tasks/${id}`, task);
 
 export const deleteTask = (id: number) =>
-    api.delete(`/tasks/${id}`);
+    api.delete(`/api/tasks/${id}`);
 
 export const completeTask = (id: number) =>
-    api.patch(`/tasks/${id}/complete`);
+    api.patch(`/api/tasks/${id}/complete`);
 
 export const getTasksByPriority = (priority: string) =>
-    api.get(`/tasks/priority/${priority}`);
+    api.get(`/api/tasks/priority/${priority}`);
 
 export const getTasksByStatus = (status: string) =>
-    api.get(`/tasks/status/${status}`);
+    api.get(`/api/tasks/status/${status}`);
 
 export const searchTasks = (keyword: string) =>
-    api.get(`/tasks/search/${keyword}`);
+    api.get(`/api/tasks/search/${keyword}`);
 
 export default api;

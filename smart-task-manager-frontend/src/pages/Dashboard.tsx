@@ -10,8 +10,17 @@ const Dashboard = () => {
     useEffect(() => {
         const fetchTasks = async () => {
             try {
-                const response = await getTasks();
-                setTasks(response.data);
+const response = await getTasks();
+
+
+const taskData = Array.isArray(response.data)
+    ? response.data
+    : Array.isArray(response.data?.data)
+        ? response.data.data
+        : [];
+
+setTasks(taskData);
+
             } catch (err) {
                 console.error('Failed to fetch tasks');
             } finally {
