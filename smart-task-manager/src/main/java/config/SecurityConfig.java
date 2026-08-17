@@ -30,7 +30,7 @@ public class SecurityConfig {
 
         config.setAllowedOrigins(List.of(
                 "http://localhost:5173",
-                "http://13.211.143.243:5173"
+                "https://smart-tasks.duckdns.org"
         ));
 
         config.setAllowedMethods(List.of(
